@@ -2,8 +2,8 @@
 indicator("MM", overlay=true)
 
 // Inputs for high and low points
-userHigh = input(205.16, "High Point") // Adjust this value
-userLow = input(201.73, "Low Point") // Adjust this value
+userHigh = input(1.00, "High Point") // Adjust this value
+userLow = input(0.00, "Low Point") // Adjust this value
 
 // Calculate the distance between each level
 measured_move = userHigh - userLow
@@ -16,6 +16,7 @@ var float fib_3 = na
 var float fib_4 = na
 var float fib_5 = na
 var float fib_6 = na
+var float fib_7 = na
 
 if (na(fib_0))
     fib_0 := userLow
@@ -24,7 +25,32 @@ if (na(fib_0))
     fib_3 := userLow + 3 * measured_move
     fib_4 := userLow + 4 * measured_move
     fib_5 := userLow + 5 * measured_move
-    fib_6 := userHigh
+    fib_6 := userLow + 6 * measured_move
+    fib_7 := userLow + 7 * measured_move
+
+// Adjust levels so that the last closing price is between fib_3 and fib_4
+last_close = close
+
+while last_close < fib_3 or last_close > fib_4
+    if last_close < fib_3
+        fib_0 := fib_0 - measured_move
+        fib_1 := fib_1 - measured_move
+        fib_2 := fib_2 - measured_move
+        fib_3 := fib_3 - measured_move
+        fib_4 := fib_4 - measured_move
+        fib_5 := fib_5 - measured_move
+        fib_6 := fib_6 - measured_move
+        fib_7 := fib_7 - measured_move
+    
+    if last_close > fib_4
+        fib_0 := fib_0 + measured_move
+        fib_1 := fib_1 + measured_move
+        fib_2 := fib_2 + measured_move
+        fib_3 := fib_3 + measured_move
+        fib_4 := fib_4 + measured_move
+        fib_5 := fib_5 + measured_move
+        fib_6 := fib_6 + measured_move
+        fib_7 := fib_7 + measured_move
 
 // Create lines and labels for levels
 var line fibLine_0 = na
@@ -34,6 +60,7 @@ var line fibLine_3 = na
 var line fibLine_4 = na
 var line fibLine_5 = na
 var line fibLine_6 = na
+var line fibLine_7 = na
 
 var label fibLabel_0 = na
 var label fibLabel_1 = na
@@ -42,30 +69,10 @@ var label fibLabel_3 = na
 var label fibLabel_4 = na
 var label fibLabel_5 = na
 var label fibLabel_6 = na
+var label fibLabel_7 = na
 
-x1 = bar_index - 36  // Adjust for the last 3 hours (assuming 5 minute per bar)
+x1 = bar_index - 36  // Adjust for the last 3 hours (assuming 5 minutes per bar)
 x2 = bar_index + 20   // Add a gap of 20 bars for the price labels
-
-// Check if the last completed candlestick breaks below or above the specified levels
-last_close = close[1]
-
-if (last_close < fib_0)
-    fib_0 := fib_0 - 2 * measured_move
-    fib_1 := fib_1 - 2 * measured_move
-    fib_2 := fib_2 - 2 * measured_move
-    fib_3 := fib_3 - 2 * measured_move
-    fib_4 := fib_4 - 2 * measured_move
-    fib_5 := fib_5 - 2 * measured_move
-    fib_6 := fib_6 - 2 * measured_move
-
-if (last_close > fib_6)
-    fib_0 := fib_0 + 2 * measured_move
-    fib_1 := fib_1 + 2 * measured_move
-    fib_2 := fib_2 + 2 * measured_move
-    fib_3 := fib_3 + 2 * measured_move
-    fib_4 := fib_4 + 2 * measured_move
-    fib_5 := fib_5 + 2 * measured_move
-    fib_6 := fib_6 + 2 * measured_move
 
 // Redraw the lines and labels
 if not na(fibLine_0)
@@ -82,6 +89,8 @@ if not na(fibLine_5)
     line.delete(fibLine_5)
 if not na(fibLine_6)
     line.delete(fibLine_6)
+if not na(fibLine_7)
+    line.delete(fibLine_7)
 
 fibLine_0 := line.new(x1, fib_0, x2, fib_0, color=color.white, width=2)
 fibLine_1 := line.new(x1, fib_1, x2, fib_1, color=color.white, width=2)
@@ -90,6 +99,7 @@ fibLine_3 := line.new(x1, fib_3, x2, fib_3, color=color.white, width=2)
 fibLine_4 := line.new(x1, fib_4, x2, fib_4, color=color.white, width=2)
 fibLine_5 := line.new(x1, fib_5, x2, fib_5, color=color.white, width=2)
 fibLine_6 := line.new(x1, fib_6, x2, fib_6, color=color.white, width=2)
+fibLine_7 := line.new(x1, fib_7, x2, fib_7, color=color.white, width=2)
 
 if not na(fibLabel_0)
     label.delete(fibLabel_0)
@@ -105,6 +115,8 @@ if not na(fibLabel_5)
     label.delete(fibLabel_5)
 if not na(fibLabel_6)
     label.delete(fibLabel_6)
+if not na(fibLabel_7)
+    label.delete(fibLabel_7)
 
 fibLabel_0 := label.new(x=x2 + 1, y=fib_0, text=str.tostring(fib_0), textcolor=color.white, style=label.style_label_center)
 fibLabel_1 := label.new(x=x2 + 1, y=fib_1, text=str.tostring(fib_1), textcolor=color.white, style=label.style_label_center)
@@ -113,3 +125,4 @@ fibLabel_3 := label.new(x=x2 + 1, y=fib_3, text=str.tostring(fib_3), textcolor=c
 fibLabel_4 := label.new(x=x2 + 1, y=fib_4, text=str.tostring(fib_4), textcolor=color.white, style=label.style_label_center)
 fibLabel_5 := label.new(x=x2 + 1, y=fib_5, text=str.tostring(fib_5), textcolor=color.white, style=label.style_label_center)
 fibLabel_6 := label.new(x=x2 + 1, y=fib_6, text=str.tostring(fib_6), textcolor=color.white, style=label.style_label_center)
+fibLabel_7 := label.new(x=x2 + 1, y=fib_7, text=str.tostring(fib_7), textcolor=color.white, style=label.style_label_center)
